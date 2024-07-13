@@ -33,6 +33,6 @@ metadata for this repository. I also generated header files based upon the IDL f
 there was no API changes between the 1.1 series of Win2D releases and Win2D 1.2. This is why there is no 1.2 version.
 
 One very important note about cross version usage of these headers. While it is possible, but not supported, to use newer versions of these component
-headers with older versions of the runtimes, Win2D 1.1 did something very naughty with its interface definitions in 1.1. They changed some interfaces
+headers with older versions of the runtimes, Win2D 1.1 did something very naughty with its interface definitions. They changed some interfaces
 but kept the IIDs the same. This is against the general rules of COM. But be careful to never use the 1.1/1.2 Win2D headers or even the C++/WinRT
 projection to interface with Win2D 1.0. It is possible to get unexpected crashes if you try.
