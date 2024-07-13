@@ -1,6 +1,6 @@
 # ABIHeaders
 ## What This Contains
-A repository containing the .idl and C/C++ header files generated from the metadata for the Windows App SDK and WebView 2.
+A repository containing the .idl and C/C++ header files generated from the metadata for the Windows App SDK, WebView 2 and Win2D.
 These are generated to be as similar as the Windows SDK ABI files as possible.
 
 ## Purpose
@@ -27,3 +27,12 @@ You should use the headers in the sdk directory, which contains the rest of the 
 If you are only targetting Windows 10 1809, then use the files in the 17763 directory, otherwise use the files in the 18362 directory. If you are
 using the 18362 headers, your application is able to run on Windows 10 1809 and you use Microsoft.UI.Input.Interop.PenDeviceIntero, then you 
 should use the ApiInformation runtime class to check that the Windows.Foundation.UneversalApiContract version 8 is available.
+
+While the Win2D NuGet package contains an ABI C/C++ header file, it doesn't contain an IDL file. I have generated the IDL file from the Win2D
+metadata for this repository. I also generated header files based upon the IDL files just to match the other sets. It is also important to note that
+there was no API changes between the 1.1 series of Win2D releases and Win2D 1.2. This is why there is no 1.2 version.
+
+One very important note about cross version usage of these headers. While it is possible, but not supported, to use newer versions of these component
+headers with older versions of the runtimes, Win2D 1.1 did something very naughty with its interface definitions in 1.1. They changed some interfaces
+but kept the IIDs the same. This is against the general rules of COM. But be careful to never use the 1.1/1.2 Win2D headers or even the C++/WinRT
+projection to interface with Win2D 1.0. It is possible to get unexpected crashes if you try.
