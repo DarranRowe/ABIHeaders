@@ -8,14 +8,28 @@ While using a projection such as C++/WinRT is preferred, there are some cases wh
 The files in this repository for some libraries which do not have the ABI files by default.
 
 This repository is incomplete. It doesn't contain any files that are in the NuGet packages, which include the interop headers.
-The repository also doesn't contain any IID definitions usable from C. Visual C++ doesn't need these files due to the __uuidof operator
-being able to read the IID associated with a class. The IIDs are unable to be generated for the Windows App SDK to how enumerations work.
 
 ## Generation Steps
 The IDL files are generated from the metadata files using the winmdidl tool, which is part of the Windows SDK. The generated IDL files are
 then renamed to only have lowercase filenames. There is one main reason to do this, the include guard in the ABI header file is based upon the
 input filename and the Windows SDK include guards are all lower case. The IDL files are then compiled using midlrt, which is also part of the
 Windows SDK. Finally, a block of comments at the start of the header files is removed.
+
+## IID Files
+There is one important thing missing for using these in a pure C environment. This is a static library containing the IIDs for the interfaces.
+These are defined in the ABI headers in the form of `EXTERN_C const IID IID___x_ABI_CMicrosoft_CWeb_CWebView2_CCore_CICoreWebView2;`. The
+reason why these are currently missing is the Windows App SDK. Some of the enumerations are named the same as in the Windows metadata, and
+this causes issues. The enumerations do not encode the namespace as part of the ABI name, so MIDL will generate conflicting identifiers. It
+doesn't help that the Windows App SDK references the Windows Metadata meaning that the conflict is guaranteed to happen.
+
+Currently, the biggest issue with generating these files is that there are some IIDs that are automatically generated. So while a tool can be
+created to read some IIDs, the tool would also have to properly generate some. The interfaces that require this are the generic interfaces.
+The Microsoft xlang repository and possibly C++/WinRT would contain the method to generate these IIDs properly, so these projects could be used
+to figure out this method. One other possibility is to rename the Windows App SDK enumeration values to remove the conflict. But this is a manual
+step and I don't know if it would affect the generated IIDs.
+
+C++ projects do not need this, because the interfaces have been properly annotated with the IIDs, so the `__uuidof` extension is able to obtain
+the IID. Just defining the IID manually in the C project's source would also allow the application to build.
 
 ## Other Information
 The Windows App SDK contains two seemingly similar sets of headers in two separate directories. This is based upon the Windows App SDK's layout,
@@ -30,7 +44,8 @@ should use the ApiInformation runtime class to check that the Windows.Foundation
 
 While the Win2D NuGet package contains an ABI C/C++ header file, it doesn't contain an IDL file. I have generated the IDL file from the Win2D
 metadata for this repository. I also generated header files based upon the IDL files just to match the other sets. It is also important to note that
-there was no API changes between the 1.1 series of Win2D releases and Win2D 1.2. This is why there is no 1.2 version.
+there was no API changes between the 1.1 series of Win2D releases and Win2D 1.2. The 1.2 files has been added, but this was only for completeness'
+sake more than a requirement.
 
 One very important note about cross version usage of these headers. While it is possible, but not supported, to use newer versions of these component
 headers with older versions of the runtimes, Win2D 1.1 did something very naughty with its interface definitions. They changed some interfaces
